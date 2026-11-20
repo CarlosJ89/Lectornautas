@@ -1,9 +1,5 @@
-const inputCarpeta = document.getElementById("selector-carpeta");
-const controles = document.querySelector(".controles");
 const menu = document.getElementById("menu-resenas");
 const vista = document.getElementById("vista-resena");
-
-let mapaImagenes = {};
 
 function parsearResena(texto) {
   const lineas = texto.replace(/\r\n/g, "\n").split("\n");
@@ -71,7 +67,7 @@ function renderizarEstrellas(valorRaw) {
 }
 
 function mostrarResena(datos, botonActivo) {
-  document.querySelectorAll("#menu-resenas button").forEach(b => b.classList.remove("activo"));
+  document.querySelectorAll("#menu-resenas button").forEach((b) => b.classList.remove("activo"));
   if (botonActivo) botonActivo.classList.add("activo");
 
   document.getElementById("alumno").textContent = datos.alumno;
@@ -84,10 +80,9 @@ function mostrarResena(datos, botonActivo) {
   const img = document.getElementById("imagen");
   const portadaLimpia = datos.portada.trim();
   const esUrl = /^https?:\/\//i.test(portadaLimpia);
-  const urlImagen = mapaImagenes[portadaLimpia.toLowerCase()] || (esUrl ? portadaLimpia : "");
 
-  if (urlImagen) {
-    img.src = urlImagen;
+  if (portadaLimpia) {
+    img.src = esUrl ? portadaLimpia : `./data/${portadaLimpia}`;
     img.hidden = false;
   } else {
     img.hidden = true;
@@ -96,37 +91,40 @@ function mostrarResena(datos, botonActivo) {
   vista.hidden = false;
 }
 
-inputCarpeta.addEventListener("change", async (e) => {
-  const archivos = Array.from(e.target.files);
+async function cargarResenasDesdeData() {
   menu.innerHTML = "";
-  mapaImagenes = {};
 
-  const archivosTxt = [];
+  try {
+    const respIndice = await fetch("./data/indice.json");
+    if (!respIndice.ok) throw new Error("No se pudo cargar data/indice.json");
 
-  for (const archivo of archivos) {
-    const nombre = archivo.name;
-    if (nombre.toLowerCase().endsWith(".txt")) {
-      archivosTxt.push(archivo);
-    } else if (archivo.type.startsWith("image/")) {
-      mapaImagenes[nombre.toLowerCase()] = URL.createObjectURL(archivo);
+    const archivosTxt = await respIndice.json();
+    if (!Array.isArray(archivosTxt) || archivosTxt.length === 0) return;
+
+    const ordenados = [...archivosTxt].sort((a, b) => a.localeCompare(b));
+
+    for (let i = 0; i < ordenados.length; i++) {
+      const nombreArchivo = ordenados[i];
+      const respTxt = await fetch(`./data/${encodeURIComponent(nombreArchivo)}`);
+      if (!respTxt.ok) continue;
+
+      const texto = await respTxt.text();
+      const datos = parsearResena(texto);
+
+      const btn = document.createElement("button");
+      btn.textContent =
+        datos.titulo && datos.alumno
+          ? `${datos.titulo} | ${datos.alumno}`
+          : datos.titulo || datos.alumno || nombreArchivo.replace(/\.txt$/i, "");
+      btn.onclick = () => mostrarResena(datos, btn);
+      menu.appendChild(btn);
+
+      if (i === 0) mostrarResena(datos, btn);
     }
+  } catch (err) {
+    menu.textContent = "Error al cargar las reseñas desde data/.";
+    console.error(err);
   }
+}
 
-  archivosTxt.sort((a, b) => a.name.localeCompare(b.name));
-
-  if (archivosTxt.length > 0) {
-    controles.hidden = true;
-  }
-
-  for (let i = 0; i < archivosTxt.length; i++) {
-    const texto = await archivosTxt[i].text();
-    const datos = parsearResena(texto);
-
-    const btn = document.createElement("button");
-    btn.textContent = datos.titulo && datos.alumno ? `${datos.titulo} | ${datos.alumno}` : datos.titulo || datos.alumno || archivosTxt[i].name.replace(".txt", "");
-    btn.onclick = () => mostrarResena(datos, btn);
-    menu.appendChild(btn);
-
-    if (i === 0) mostrarResena(datos, btn);
-  }
-});
+cargarResenasDesdeData();
