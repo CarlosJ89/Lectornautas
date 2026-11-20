@@ -1,0 +1,43 @@
+name: Actualizar indice de reseñas
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/**"
+
+permissions:
+  contents: write
+
+jobs:
+  generar-indice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Generar data/indice.json
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const dir = path.join(process.cwd(), "data");
+            const archivos = fs.existsSync(dir)
+              ? fs.readdirSync(dir)
+                  .filter((f) => f.toLowerCase().endsWith(".txt"))
+                  .sort((a, b) => a.localeCompare(b))
+              : [];
+            fs.writeFileSync(path.join(dir, "indice.json"), JSON.stringify(archivos, null, 2) + "\n", "utf8");
+          '
+
+      - name: Guardar cambios si hubo modificaciones
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/indice.json
+          if ! git diff --staged --quiet; then
+            git commit -m "Actualizar data/indice.json"
+            git push
+          fi
