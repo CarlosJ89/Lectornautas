@@ -1,0 +1,20 @@
+##Alumno
+Lucía Gómez
+
+##Título
+El Principito
+
+##Autor
+Antoine de Saint-Exupéry
+
+##Portada
+elprincipito.jpg
+
+##Resument
+Un piloto se queda varado en el desierto del Sahara y conoce a un pequeño príncipe proveniente de otro planeta.
+A lo largo de varios días, el niño le cuenta sus viajes y las personas peculiares que conoció antes de llegar a la Tierra.
+
+##Reseña
+Me ha parecido un libro muy tierno que te hace reflexionar sobre la amistad y lo que de verdad importa en la vida, aunque al principio parezca infantil.
+##Puntuación
+0
