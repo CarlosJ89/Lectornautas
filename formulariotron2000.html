@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear reseña - Lectornautas</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .campo {
+      margin-bottom: 1.2rem;
+    }
+
+    .campo label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .campo input,
+    .campo textarea,
+    .campo select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      font-family: inherit;
+      font-size: 1rem;
+      color: #111111;
+      background-color: #f3edfc;
+      border: 1px solid #d5c6f0;
+      border-radius: 8px;
+    }
+
+    .campo textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .campo small {
+      display: block;
+      margin-top: 0.3rem;
+      color: #444444;
+    }
+
+    .acciones {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Lectornautas</h1>
+    <p>Generador de ficha de lectura</p>
+  </header>
+
+  <main>
+    <form id="form-resena">
+      <div class="campo">
+        <label for="f-alumno">Alumno / Alumna</label>
+        <input type="text" id="f-alumno" required placeholder="Ej. Marina Cervero">
+      </div>
+
+      <div class="campo">
+        <label for="f-titulo">Título del libro</label>
+        <input type="text" id="f-titulo" required placeholder="Ej. El Principito">
+      </div>
+
+      <div class="campo">
+        <label for="f-autor">Autor / Autora</label>
+        <input type="text" id="f-autor" required placeholder="Ej. Antoine de Saint-Exupéry">
+      </div>
+
+      <div class="campo">
+        <label for="f-portada">Nombre del archivo de portada</label>
+        <input type="text" id="f-portada" placeholder="Ej. el_principito.jpg">
+        <small>Debe coincidir exactamente con el nombre de la imagen que guardes en la carpeta de reseñas.</small>
+      </div>
+
+      <div class="campo">
+        <label for="f-resumen">Resumen</label>
+        <textarea id="f-resumen" required placeholder="Escribe aquí el resumen del libro..."></textarea>
+      </div>
+
+      <div class="campo">
+        <label for="f-resena">Reseña</label>
+        <textarea id="f-resena" required placeholder="Escribe aquí tu opinión personal..."></textarea>
+      </div>
+
+      <div class="campo">
+        <label for="f-puntuacion">Puntuación (de 0 a 5, de 0.5 en 0.5)</label>
+        <input type="number" id="f-puntuacion" min="0" max="5" step="0.5" value="5" required>
+      </div>
+
+      <div class="acciones">
+        <button type="submit" class="boton-cargar">Descargar archivo .txt</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById("form-resena").addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const alumno = document.getElementById("f-alumno").value.trim();
+      const titulo = document.getElementById("f-titulo").value.trim();
+      const autor = document.getElementById("f-autor").value.trim();
+      const portada = document.getElementById("f-portada").value.trim();
+      const resumen = document.getElementById("f-resumen").value.trim();
+      const resena = document.getElementById("f-resena").value.trim();
+
+      const puntuacionRaw = document.getElementById("f-puntuacion").value.replace(",", ".").trim();
+      const puntuacionNum = Number(puntuacionRaw);
+      const esValida = !Number.isNaN(puntuacionNum) && puntuacionNum >= 0 && puntuacionNum <= 5 && (puntuacionNum * 2) % 1 === 0;
+
+      if (!esValida) {
+        alert("La puntuación debe estar entre 0 y 5 en tramos de 0.5 (por ejemplo: 0, 0.5, 1, 1.5...).");
+        return;
+      }
+
+      const puntuacion = String(puntuacionNum);
+
+      const contenido = [
+        "##Alumno",
+        alumno,
+        "",
+        "##Título",
+        titulo,
+        "",
+        "##Autor",
+        autor,
+        "",
+        "##Portada",
+        portada,
+        "",
+        "##Resument",
+        resumen,
+        "",
+        "##Reseña",
+        resena,
+        "",
+        "##Puntuación",
+        puntuacion
+      ].join("\n");
+
+      const nombreBase = `${titulo}_${alumno}`
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_|_$/g, "") || "resena";
+
+      const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
+      const enlace = document.createElement("a");
+      enlace.href = URL.createObjectURL(blob);
+      enlace.download = `${nombreBase}.txt`;
+      enlace.click();
+      URL.revokeObjectURL(enlace.href);
+    });
+  </script>
+</body>
+</html>
