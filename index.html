@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lectornautas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Lectornautas</h1>
+
+    <div class="controles">
+      <label for="selector-carpeta" class="boton-cargar">
+        Selecciona la carpeta de reseñas
+      </label>
+      <input type="file" id="selector-carpeta" webkitdirectory directory multiple hidden>
+    </div>
+
+    <nav id="menu-resenas"></nav>
+  </header>
+
+  <main id="vista-resena" hidden>
+    <section class="cabecera-libro">
+      <div class="datos">
+        <p><strong>Alumno:</strong> <span id="alumno"></span></p>
+        <p><strong>Título:</strong> <span id="titulo"></span></p>
+        <p><strong>Autor:</strong> <span id="autor"></span></p>
+      </div>
+      <div class="portada">
+        <img id="imagen" src="" alt="Portada del libro">
+      </div>
+    </section>
+
+    <section class="bloque-texto">
+      <h2>Resumen</h2>
+      <p id="resumen"></p>
+    </section>
+
+    <section class="bloque-texto">
+      <h2>Reseña</h2>
+      <p id="opinion"></p>
+    </section>
+
+    <section class="bloque-texto bloque-puntuacion">
+      <h2>Puntuación</h2>
+      <div class="estrellas-fila">
+        <div id="estrellas" class="estrellas" aria-label="Puntuación en estrellas"></div>
+        <span id="puntuacion-texto" class="puntuacion-texto"></span>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
